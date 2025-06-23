@@ -28,7 +28,6 @@ const GroupChatPage: React.FC = () => {
     if (user.role === UserRole.ADMIN) {
       return CHAT_ENABLED_DEPARTMENTS;
     }
-    // Regular user sees only their department, if it's chat-enabled
     return CHAT_ENABLED_DEPARTMENTS.includes(user.department) && user.department !== Department.ALL_DEPARTMENTS 
            ? [user.department] 
            : [];
@@ -36,9 +35,11 @@ const GroupChatPage: React.FC = () => {
 
   useEffect(() => {
     if (user && availableDepartments.length > 0 && !selectedDepartment) {
-      setSelectedDepartment(user.role === UserRole.ADMIN ? availableDepartments[0] : user.department);
+      // Set initial department: user's own if not admin, or first available if admin
+      const initialDept = user.role === UserRole.ADMIN ? availableDepartments[0] : (availableDepartments.includes(user.department) ? user.department : availableDepartments[0]);
+      setSelectedDepartment(initialDept);
     } else if (user && availableDepartments.length === 0) {
-      setSelectedDepartment(null); // No available departments for user
+      setSelectedDepartment(null); 
     }
   }, [user, availableDepartments, selectedDepartment]);
   
@@ -52,20 +53,19 @@ const GroupChatPage: React.FC = () => {
       } catch (e: any) {
         console.error("Error fetching messages:", e);
         setChatError(`Failed to load messages: ${e.message}`);
-        setMessages([]); // Clear messages on error
+        setMessages([]); 
       } finally {
         setLoadingMessages(false);
       }
     } else {
-      setMessages([]); // Clear messages if no department or user
+      setMessages([]); 
+      setLoadingMessages(false); // Ensure loading is false if no department/user
     }
   }, [selectedDepartment, user]);
 
   useEffect(() => {
     fetchMessages();
-    // Consider using Supabase real-time subscriptions here for a true live chat
-    // For now, polling as a fallback if subscriptions are not implemented
-    const intervalId = setInterval(fetchMessages, 5000); // Poll more frequently for chat
+    const intervalId = setInterval(fetchMessages, 5000); 
     return () => clearInterval(intervalId);
   }, [fetchMessages]);
 
@@ -84,7 +84,7 @@ const GroupChatPage: React.FC = () => {
         type: 'text',
         textContent: newMessage,
       });
-      fetchMessages(); // Re-fetch messages immediately after sending
+      fetchMessages(); 
       setNewMessage('');
     } catch (err: any) {
       console.error("Error sending message:", err);
@@ -126,11 +126,10 @@ const GroupChatPage: React.FC = () => {
       }
       
       if (targetDepartments.includes(Department.ALL_DEPARTMENTS) && selectedDepartment === Department.ALL_DEPARTMENTS) {
-        // Log system notification for admin's view in ALL_DEPARTMENTS channel
         await addSystemNotificationToDepartment(Department.ALL_DEPARTMENTS, `Voice note broadcasted to: ${departmentsToNotify.join(', ')}`);
       }
       
-      fetchMessages(); // Re-fetch all messages to update UI
+      fetchMessages(); 
       setIsVoiceModalOpen(false);
 
     } catch (err: any) {

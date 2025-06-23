@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const hydratedUser: User = {
           id: supabaseUser.id,
           name: profile.name || supabaseUser.email?.split('@')[0] || 'User',
-          email: supabaseUser.email || profile.email,
+          email: supabaseUser.email || profile.email, // Prioritize Supabase email if available
           role: profile.role as UserRole || UserRole.USER,
           department: profile.department as Department || Department.OFFICE,
         };
@@ -153,7 +153,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             console.log(`AuthContext: onAuthStateChange - Preparing to set user state with loadedUser for event ${event}:`, loadedUser);
             setUser(loadedUser);
             
-            console.log(`AuthContext: onAuthStateChange - State after processing ${event} (user/session logged here are from previous render):`, user, session);
+            // Note: `user` and `session` logged below are from the previous render cycle due to closure.
+            // The `loadedUser` and `currentSession` are the most up-to-date values for *this* event.
+            console.log(`AuthContext: onAuthStateChange - State after processing ${event} (user/session in this log are from previous render):`, user, session);
 
         } catch (e: any) {
             console.error(`AuthContext: onAuthStateChange - Exception during event handling for ${event}:`, e.message, e.stack);
@@ -173,7 +175,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.warn("AuthContext: useEffect cleanup - No subscription object found to unsubscribe.");
       }
     };
-  }, []); // Dependency array is now empty []
+  }, []); // Dependency array is empty [], runs once on mount and cleans up on unmount.
 
   const login = async (email: string, password?: string) => {
     console.log(`AuthContext: login - Attempting login for email: ${email}`);
@@ -201,9 +203,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         displayMessage = "Your email address has not been confirmed. Please check your inbox for a confirmation link.";
       }
       alert(`Login failed: ${displayMessage}`);
-      setLoading(false); 
+      setLoading(false); // Set loading false here if login fails before onAuthStateChange
     } else {
         console.log("AuthContext: login - signInWithPassword successful. Waiting for onAuthStateChange (SIGNED_IN) to set user and final loading state.", data);
+        // onAuthStateChange will handle setting loading to false after user profile is loaded.
     }
     return { error };
   };
@@ -235,12 +238,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (error) {
       console.error("AuthContext: register - Registration error from Supabase:", error.message);
       alert(`Registration failed: ${error.message}`);
-      setLoading(false); 
+      setLoading(false); // Set loading false here if registration fails
     } else if (signUpData.user) {
         console.log("AuthContext: register - Supabase signUp call successful.", signUpData);
          if (signUpData.session) {
             console.log("AuthContext: register - Registration resulted in an immediate session. onAuthStateChange (SIGNED_IN) will handle user state and final loading.");
+            // onAuthStateChange will handle setting loading to false.
         } else { 
+            // Email confirmation required
             alert("Registration successful! Please check your email to confirm your account.");
             console.log("AuthContext: register - Email confirmation required. Setting loading=false.");
             setLoading(false); 
@@ -268,12 +273,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if (error) {
         console.error("AuthContext: logout - Error during Supabase sign out:", error.message);
+        // Even if Supabase signout fails, onAuthStateChange might not fire or might fire with old session.
+        // It's safer to ensure loading is false if an error occurs here.
+        setLoading(false);
     }
     // setUser(null) and setSession(null) will be handled by onAuthStateChange 'SIGNED_OUT' event.
-    // Explicitly setting loading to false here, as SIGNED_OUT will also do it.
-    // If SIGNED_OUT doesn't fire for some reason, this ensures loading state is reset.
+    // onAuthStateChange's 'SIGNED_OUT' handler will also set loading=false.
     console.log("AuthContext: logout - Supabase signOut called. onAuthStateChange (SIGNED_OUT) will clear user/session and set final loading state.");
-    setLoading(false); // Can be set here, or rely solely on onAuthStateChange's finally block for SIGNED_OUT
   };
 
   const setUserRole = async (newRole: UserRole) => {

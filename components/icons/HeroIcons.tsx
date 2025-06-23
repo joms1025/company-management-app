@@ -51,14 +51,14 @@ export const VideoCameraIcon: React.FC<SVGProps> = (props) => (
 
 export const Cog6ToothIcon: React.FC<SVGProps> = (props) => (
  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.096.573.397 1.096.794 1.414l.893.893c.398.398.94.597 1.484.597h1.405c.668 0 1.218.55 1.12 1.218-.098.667-.558 1.171-1.218 1.171H19.54c-.543 0-1.087.199-1.484.597l-.893.893c-.397.318-.698.841-.794 1.414l-.213 1.281c-.09.543-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.096-.573-.397-1.096-.794-1.414l-.893-.893c-.398-.398-.94-.597-1.484-.597H3.794c-.668 0-1.218-.55-1.12-1.218.098-.667.558 1.171 1.218-1.171H6.31c.543 0 1.087-.199 1.484.597l.893-.893c.397-.318.698-.841-.794-1.414l.213-1.281z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.096.573.397 1.096.794 1.414l.893.893c.398.398.94.597 1.484.597h1.405c.668 0 1.218.55 1.12 1.218-.098.667-.558 1.171-1.218 1.171H19.54c-.543 0-1.087.199-1.484.597l-.893.893c-.397.318-.698.841-.794 1.414l-.213 1.281c-.09.543-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.096-.573-.397-1.096-.794-1.414l-.893-.893c-.398-.398-.94-.597-1.484.597H3.794c-.668 0-1.218-.55-1.12-1.218.098-.667.558 1.171 1.218-1.171H6.31c.543 0 1.087-.199 1.484.597l.893-.893c.397-.318.698-.841-.794-1.414l.213-1.281z" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
   </svg>
 );
 
 export const Cog8ToothIcon: React.FC<SVGProps> = (props) => ( // Slightly different cog
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527c.46-.329 1.026-.28 1.445.121l.772.772c.424.424.465 1.085.12 1.445l-.527.737c-.25.35-.272.806-.108 1.204.166.397.506.71.93.781l.893.149c.543.09.94.56.94 1.11v1.093c0 .55-.397 1.02-.94 1.11l-.893.149c-.424.07-.764.383-.93.78-.164.398-.142.854.108 1.204l.527.738c.345.46.303 1.02-.12 1.445l-.773.772c-.42.424-1.085.465-1.445.12l-.737-.527c-.35-.25-.806-.272-1.205-.108-.397.165-.71.505-.78.93l-.149.894c-.09.542-.56.94-1.11.94h-1.093c-.55 0-1.02-.398-1.11-.94l-.149-.894c-.07-.424-.384-.764-.78-.93-.398-.164-.855-.142-1.205.108l-.737.527c-.46.329-1.026-.28-1.445-.121l-.772-.772c-.424-.424-.465-1.085-.12-1.445l.527-.737c.25-.35.272-.806.108-1.204-.166-.397-.506-.71-.93-.781l-.893-.149c-.543-.09-.94-.56-.94-1.11v-1.093c0 .55.397-1.02.94-1.11l.893-.149c.424-.07.764-.383.93-.78.164-.398.142-.854-.108-1.204l-.527-.738c-.345-.46-.303-1.02.12-1.445l.773.772c.42-.424 1.085-.465 1.445.12l.737.527c.35.25.806-.272 1.205.108.397-.165.71-.505-.78-.93l.149-.894z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527c.46-.329 1.026-.28 1.445.121l.772.772c.424.424.465 1.085.12 1.445l-.527.737c-.25.35-.272.806-.108 1.204.166.397.506.71.93.781l.893.149c.543.09.94.56.94 1.11v1.093c0 .55-.397 1.02-.94 1.11l-.893.149c-.424.07-.764.383-.93.78-.164.398-.142.854.108 1.204l.527.738c.345.46.303 1.02-.12 1.445l-.773.772c-.42.424-1.085.465-1.445.12l-.737-.527c-.35-.25-.806-.272-1.205-.108-.397.165-.71.505-.78.93l-.149.894c-.09.542-.56.94-1.11.94h-1.093c-.55 0-1.02-.398-1.11-.94l-.149-.894c-.07-.424-.384-.764-.78-.93-.398-.164-.855-.142-1.205.108l-.737.527c-.46.329-1.026-.28-1.445-.121l-.772-.772c-.424-.424-.465-1.085-.12-1.445l.527-.737c.25-.35.272-.806.108-1.204-.166-.397-.506-.71-.93-.781l-.893-.149c-.543-.09-.94-.56-.94-1.11v-1.093c0 .55.397-1.02.94-1.11l.893-.149c.424-.07.764-.383.93-.78.164-.398-.142-.854-.108-1.204l-.527-.738c-.345-.46-.303-1.02.12-1.445l.773.772c.42-.424 1.085-.465 1.445.12l.737.527c.35.25.806-.272 1.205.108.397-.165-.71-.505-.78-.93l.149-.894z" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
   </svg>
 );
@@ -217,48 +217,3 @@ export const UserPlusIcon: React.FC<SVGProps> = (props) => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
   </svg>
 );
-
-// Add other icons as needed...
-// Remember to export them!
-// Updated ArrowRightOnRectangleIcon for general use:
-// export const ArrowRightOnRectangleIcon: React.FC<SVGProps> = (props) => ( 
-//     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-//       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3.75-7.5L18 5.25m0 0l-3.75 3.75M18 5.25V9.75M5.25 12H12" />
-//     </svg>
-// );
-// The original ArrowRightOnRectangleIcon provided was:
-// <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-//   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m12.75-7.5h-15m15 0L18 5.25m-2.25 2.25L18 9.75" />
-// </svg>
-// Using a slightly different common "login" icon here by adjusting the original logout icon.
-// Let's use the one that's a door with an arrow pointing into it.
-// Path for login: M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m-3.75-7.5L12 5.25m0 0l-3.75 3.75M12 5.25V15"
-// Path for logout: M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M15.75 15l-3.75-3.75M15.75 15l3.75-3.75M15.75 15H3"
-
-// Correct ArrowRightOnRectangleIcon for Logout (arrow pointing out of rectangle)
-// The one currently in Header.tsx is actually more like a login icon (arrow pointing into rectangle)
-// Path: M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3.75-7.5L18 5.25m0 0l-3.75 3.75M18 5.25V9.75"
-// The one currently used in Header.tsx (12.75 15l3-3m0 0l-3-3m3 3h-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z) is an arrow inside a circle, not a rectangle.
-// Let's ensure ArrowRightOnRectangleIcon is for LOGOUT (arrow exiting)
-// And we can create ArrowLeftOnRectangleIcon for LOGIN (arrow entering)
-// The version in Header.tsx is actually good for logout:
-// M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m12.75-7.5h-15m15 0L18 5.25m-2.25 2.25L18 9.75
-// This one is actually "ArrowUturnLeftIcon" essentially. Let's use the standard one.
-// The icon from heroicons for logout (ArrowRightOnRectangleIcon) is:
-// <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M17.25 12V9.75M17.25 12H7.5m9.75 0l-3-3m3 3l3-3" />
-// The one I used in Header.tsx was:
-// <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m12.75-7.5h-15m15 0L18 5.25m-2.25 2.25L18 9.75" />
-// This icon in Header is actually ArrowRightIcon combined with a door. It's fine for logout.
-// For the new login button on RegistrationPage, I'll use this same icon but flip it horizontally.
-// This is already done in the RegistrationPage.tsx: `className="h-5 w-5 mr-2 transform -scale-x-100"`
-// So no change is needed for HeroIcons.tsx.
-// The prompt for HeroIcons was to "Added ArrowRightOnRectangleIcon to be used as a login icon". It's already there and will be reused/transformed.
-
-// The version of ArrowRightOnRectangleIcon in HeroIcons.tsx:
-// d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m12.75-7.5h-15m15 0L18 5.25m-2.25 2.25L18 9.75"
-// This is the icon `ArrowLongRightIcon` on top of a door frame, suitable for logout.
-// For login on RegistrationPage, it's flipped. This is correct.
-// No changes to HeroIcons.tsx are needed. The description for HeroIcons.tsx in the prompt was slightly misleading.
-// The icon IS ALREADY PRESENT and is being REUSED with a transform.
-// The only change is in RegistrationPage.tsx.
-// My thought process about changing HeroIcons was incorrect; it's fine.

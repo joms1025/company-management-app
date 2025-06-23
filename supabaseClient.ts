@@ -30,7 +30,7 @@ function initializeSupabase() {
 
     const windowSupabaseUrl = (window as any).SUPABASE_URL;
     const windowSupabaseAnonKey = (window as any).SUPABASE_ANON_KEY;
-    const envSupabaseUrl = process.env.SUPABASE_URL;
+    const envSupabaseUrl = process.env.SUPABASE_URL; // Typically for server-side or build-time injection
     const envSupabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
     let determinedSupabaseUrl: string | undefined = undefined;
@@ -48,8 +48,9 @@ function initializeSupabase() {
         console.log(`Supabase client: Using valid credentials from ${currentCredSource}.`);
     } 
     // 2. Else, try environment variables if they are present and NOT placeholders
+    // This is less common for pure client-side apps served statically without a build step that injects env vars.
     else {
-        console.warn(`Supabase client: Window credentials from index.html are placeholders, missing, or invalid (URL: "${windowSupabaseUrl}", Key: "${windowSupabaseAnonKey}"). Checking process.env...`);
+        console.warn(`Supabase client: Window credentials from index.html are placeholders, missing, or invalid (URL: "${windowSupabaseUrl}", Key: "${windowSupabaseAnonKey}"). Checking process.env (less likely for client-side)...`);
         console.log(`Supabase client: Reading environment credentials - SUPABASE_URL: "${envSupabaseUrl}", SUPABASE_ANON_KEY: "${envSupabaseAnonKey}"`);
         if (envSupabaseUrl && typeof envSupabaseUrl === 'string' && envSupabaseUrl.trim() !== '' && envSupabaseUrl !== PLACEHOLDER_URL &&
             envSupabaseAnonKey && typeof envSupabaseAnonKey === 'string' && envSupabaseAnonKey.trim() !== '' && envSupabaseAnonKey !== PLACEHOLDER_KEY) {
@@ -74,16 +75,15 @@ function initializeSupabase() {
     }
 
     // 3. Attempt to create client if valid credentials were determined
-    if (determinedSupabaseUrl && determinedSupabaseAnonKey) { // Already checked for placeholders and emptiness above
+    if (determinedSupabaseUrl && determinedSupabaseAnonKey) { 
         try {
             console.log(`Supabase client: Calling createClient() with URL from ${currentCredSource}: "${determinedSupabaseUrl}" and Key (from ${currentCredSource})`);
             supabase = createClient(determinedSupabaseUrl, determinedSupabaseAnonKey);
-            initializationSuccess = !!supabase; // Success if client is not null
+            initializationSuccess = !!supabase; 
             if (initializationSuccess) {
                 credSourceDetails = `Successfully initialized using credentials from ${currentCredSource}.`;
                 console.log(`Supabase client: ${credSourceDetails}`);
             } else {
-                // This case should ideally not be hit if createClient throws for bad args, but as a safeguard:
                 credSourceDetails = `createClient() resulted in a null client despite seemingly valid args from ${currentCredSource}. This is unexpected.`;
                 console.error(`Supabase client: CRITICAL - ${credSourceDetails}`);
             }
@@ -94,7 +94,6 @@ function initializeSupabase() {
             initializationSuccess = false;
         }
     } else {
-         // This block should ideally not be reached if logic above is correct, but for safety:
          credSourceDetails = `Not attempting to initialize because determined credentials are still somehow invalid (URL: "${determinedSupabaseUrl}", Key: "${determinedSupabaseAnonKey}"). This indicates a logic flaw.`;
          console.error(`Supabase client: CRITICAL - ${credSourceDetails}`);
          supabase = null;
@@ -103,7 +102,6 @@ function initializeSupabase() {
 }
 
 // Perform initial attempt when module is first loaded.
-// Subsequent imports will get the already initialized 'supabase' instance (or null if failed).
 if (!initializationAttempted) {
     initializeSupabase();
 } else {
@@ -111,8 +109,12 @@ if (!initializationAttempted) {
     if (initializationSuccess && supabase) {
         console.log("Supabase client: Module re-evaluated. Already successfully initialized. Using existing client.");
     } else {
-        console.warn(`Supabase client: Module re-evaluated. Initialization was previously attempted and failed or client is null. Attempting re-initialization.`);
-        initializeSupabase(); // Re-attempt, respecting the already set `initializationAttempted` logic inside
+        console.warn(`Supabase client: Module re-evaluated. Initialization was previously attempted and failed or client is null. Re-attempting initialization.`);
+        // Re-attempt, respecting the already set `initializationAttempted` and `initializationSuccess` logic inside.
+        // If it failed before due to config, it will likely fail again and log, which is intended.
+        if (!initializationSuccess) { // Only re-run the full logic if not already successful
+            initializeSupabase();
+        }
     }
 }
 

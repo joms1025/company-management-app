@@ -23,7 +23,7 @@ const RegistrationPage: React.FC = () => {
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError(null);
-    setLoginError(null);
+    setLoginError(null); // Clear login error when attempting registration
     setRegLoading(true);
 
     if (regPassword !== regConfirmPassword) {
@@ -37,12 +37,11 @@ const RegistrationPage: React.FC = () => {
       return;
     }
 
-    // UserData for Supabase signUp, including metadata for the 'profiles' table trigger
     const userDataForSupabase = {
       name: regName,
       email: regEmail,
       password: regPassword, 
-      role: UserRole.USER, // New registrations are always 'User'
+      role: UserRole.USER, 
       department: regDepartment,
     };
 
@@ -50,15 +49,13 @@ const RegistrationPage: React.FC = () => {
     if (error) {
       setRegError(error.message || "An unexpected error occurred during registration.");
     }
-    // Successful registration will trigger user state change in AuthContext via onAuthStateChange,
-    // and App.tsx will handle navigation. AuthContext will also alert for email confirmation.
     setRegLoading(false);
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
-    setRegError(null);
+    setRegError(null); // Clear registration error when attempting login
     setLoginLoading(true);
 
     if (!loginEmail || !loginPassword) {
@@ -70,8 +67,6 @@ const RegistrationPage: React.FC = () => {
     if (error) {
         setLoginError(error.message || "Login failed. Please check your credentials.");
     }
-    // Successful login will trigger user state change in AuthContext,
-    // and App.tsx will handle navigation.
     setLoginLoading(false);
   }
   

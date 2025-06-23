@@ -16,7 +16,7 @@ export const getTasksForDepartment = async (department: Department, userRole?: U
   // If admin and department is 'ALL', no department filter is applied to fetch all tasks.
 
   query = query.order('due_date', { ascending: true })
-               .order('status', { ascending: true }); // Pending first based on TaskStatus enum values if they are ordered
+               .order('status', { ascending: true }); 
 
   const { data, error } = await query;
 
@@ -24,13 +24,16 @@ export const getTasksForDepartment = async (department: Department, userRole?: U
     console.error("Error fetching tasks:", error);
     throw error;
   }
-  // Map Supabase data to Task type (especially for date conversion if needed)
+  
   return data.map(t => ({
-      ...t,
-      dueDate: new Date(t.due_date), // Ensure due_date is a Date object
+      id: t.id,
+      title: t.title,
+      description: t.description,
       assignedTo: t.assigned_to_department as Department,
+      dueDate: new Date(t.due_date), 
       status: t.status as TaskStatus,
-      createdBy: t.created_by_user_id
+      createdBy: t.created_by_user_id,
+      created_at: t.created_at ? new Date(t.created_at) : undefined
   })) as Task[];
 };
 
@@ -42,7 +45,7 @@ export const addTask = async (taskData: Omit<Task, 'id' | 'status' | 'createdBy'
     description: taskData.description,
     assigned_to_department: taskData.assignedTo,
     due_date: taskData.dueDate.toISOString(),
-    status: TaskStatus.PENDING, // New tasks are pending by default
+    status: TaskStatus.PENDING, 
     created_by_user_id: taskData.createdByUserId,
   };
 
@@ -57,11 +60,14 @@ export const addTask = async (taskData: Omit<Task, 'id' | 'status' | 'createdBy'
     throw error;
   }
   return { 
-      ...data, 
-      dueDate: new Date(data.due_date),
+      id: data.id,
+      title: data.title,
+      description: data.description,
       assignedTo: data.assigned_to_department as Department,
+      dueDate: new Date(data.due_date),
       status: data.status as TaskStatus,
-      createdBy: data.created_by_user_id
+      createdBy: data.created_by_user_id,
+      created_at: data.created_at ? new Date(data.created_at) : undefined
   } as Task;
 };
 
@@ -79,11 +85,14 @@ export const updateTaskStatus = async (taskId: string, status: TaskStatus): Prom
     throw error;
   }
    return { 
-      ...data, 
-      dueDate: new Date(data.due_date),
+      id: data.id,
+      title: data.title,
+      description: data.description,
       assignedTo: data.assigned_to_department as Department,
+      dueDate: new Date(data.due_date),
       status: data.status as TaskStatus,
-      createdBy: data.created_by_user_id
+      createdBy: data.created_by_user_id,
+      created_at: data.created_at ? new Date(data.created_at) : undefined
   } as Task;
 };
 
@@ -219,7 +228,7 @@ export const addSystemNotificationToDepartment = async (department: Department, 
         text_content: data.text_content,
         voice_note_data: undefined,
         timestamp: new Date(data.timestamp),
-        isOwnMessage: data.sender_id === SYSTEM_SENDER_ID, // To differentiate system messages visually if needed
+        isOwnMessage: data.sender_id === SYSTEM_SENDER_ID, 
       } as ChatMessage;
 
    } catch (e) {
@@ -227,10 +236,3 @@ export const addSystemNotificationToDepartment = async (department: Department, 
       return null;
    }
 };
-
-// Standalone Voice Notes (if feature is ever revived for different purpose, e.g. meeting recordings)
-// export const getVoiceNotesForUser = async (userId: string): Promise<VoiceNote[]> => { ... }
-// export const addVoiceNote = async (voiceNote: Omit<VoiceNote, 'id'>): Promise<VoiceNote> => { ... }
-
-// Note: Functions like findUserByEmail and conceptual_addUser are now handled by Supabase Auth.
-// If you need to query user profiles directly, use supabase.from('profiles').select(...).

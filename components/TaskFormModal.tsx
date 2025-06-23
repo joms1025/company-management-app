@@ -19,7 +19,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({ isOpen, onClose, onSubmit
   useEffect(() => {
     if (initialData && isOpen) { // ensure reset only when modal is opened with initialData
       setTitle(initialData.title);
-      setDescription(initialData.description);
+      setDescription(initialData.description || ''); // Ensure description is not undefined
       setAssignedTo(initialData.assignedTo);
       setDueDate(new Date(initialData.dueDate).toISOString().split('T')[0]);
     } else if (isOpen) { // Reset form for creation when modal opens without initialData

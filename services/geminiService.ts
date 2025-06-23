@@ -9,21 +9,21 @@ const API_KEY_FOR_GEMINI = GEMINI_API_KEY_ENV || GEMINI_API_KEY_WINDOW;
 
 let ai: GoogleGenAI | null = null;
 
-if (API_KEY_FOR_GEMINI) {
+if (API_KEY_FOR_GEMINI && API_KEY_FOR_GEMINI.trim() !== "") {
   try {
     ai = new GoogleGenAI({ apiKey: API_KEY_FOR_GEMINI });
+    console.log("Gemini API client initialized successfully.");
   } catch (error: any) {
     console.error("Error initializing GoogleGenAI:", error.message);
     ai = null;
   }
-}
-
-if (!ai) {
+} else {
   console.warn(
     "Gemini API client could not be initialized. " +
-    "API_KEY (for process.env) or GEMINI_API_KEY (for window object) might be missing or invalid."
+    "API_KEY (for process.env) or GEMINI_API_KEY (for window object) is missing, empty, or invalid."
   );
 }
+
 
 /**
  * Helper function to convert a File object to a GoogleGenAI.Part object.
@@ -31,9 +31,18 @@ if (!ai) {
  * @returns A promise that resolves to the Generative AI Part.
  */
 async function fileToGenerativePart(file: File): Promise<Part> {
-  const base64EncodedDataPromise = new Promise<string>((resolve) => {
+  const base64EncodedDataPromise = new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+    reader.onloadend = () => {
+        if (reader.result) {
+            resolve((reader.result as string).split(',')[1]);
+        } else {
+            reject(new Error("File could not be read for base64 conversion."));
+        }
+    };
+    reader.onerror = () => {
+        reject(new Error("FileReader error while reading file."));
+    };
     reader.readAsDataURL(file);
   });
 
@@ -53,7 +62,7 @@ async function fileToGenerativePart(file: File): Promise<Part> {
  */
 export const processAudioWithGemini = async (audioFile: File): Promise<Partial<VoiceNoteData>> => {
   if (!ai) {
-    throw new Error("Gemini API client is not initialized. API_KEY might be missing or invalid.");
+    throw new Error("Gemini API client is not initialized. API_KEY (for process.env) or GEMINI_API_KEY (for window object) might be missing or invalid. Please check app configuration.");
   }
 
   try {
@@ -87,12 +96,17 @@ export const processAudioWithGemini = async (audioFile: File): Promise<Partial<V
     };
     
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: GEMINI_MODEL_TEXT, // Use the multimodal flash model
+      model: GEMINI_MODEL_TEXT, 
       contents: [ { parts: [promptTextPart, audioDataPart] } ],
       config: {
         responseMimeType: "application/json",
       }
     });
+    
+    if (!response || !response.text) {
+        console.error("Gemini API returned an empty or invalid response object/text.", response);
+        throw new Error("Received empty or invalid response from AI.");
+    }
 
     let jsonStr = response.text.trim();
     const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
@@ -102,12 +116,11 @@ export const processAudioWithGemini = async (audioFile: File): Promise<Partial<V
     }
 
     try {
-      const parsedData = JSON.parse(jsonStr) as Omit<VoiceNoteData, 'originalAudioUrl'>; // Expecting all fields for VoiceNoteData
+      const parsedData = JSON.parse(jsonStr) as Omit<VoiceNoteData, 'originalAudioUrl'>; 
        if (
         typeof parsedData.originalTranscription === 'undefined' ||
         typeof parsedData.detectedLanguage === 'undefined' ||
         typeof parsedData.translatedText === 'undefined'
-        // summary is optional in VoiceNoteData, so not strictly checked here
       ) {
         console.error("Parsed JSON is missing required fields for VoiceNoteData:", parsedData, "Raw JSON string:", jsonStr);
         throw new Error("Received malformed JSON response from AI (missing fields).");

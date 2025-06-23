@@ -44,6 +44,8 @@ const DashboardPage: React.FC = () => {
     } else {
       setLoadingTasks(false);
       setLoadingMessages(false);
+      setUserTasks([]);
+      setRecentMessages([]);
     }
   }, [user]);
 
@@ -51,25 +53,30 @@ const DashboardPage: React.FC = () => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  if (!user || (loadingTasks && loadingMessages && !error)) return (
-    <div className="flex justify-center items-center h-full">
-      <Spinner size="lg" />
-      <p className="ml-3 text-neutral-dark dark:text-neutral-light">Loading dashboard...</p>
-    </div>
-  );
+  if (!user || (loadingTasks && loadingMessages && !error && userTasks.length === 0 && recentMessages.length === 0)) { // Adjusted condition to prevent flash of content
+    return (
+        <div className="flex justify-center items-center h-full">
+        <Spinner size="lg" />
+        <p className="ml-3 text-neutral-dark dark:text-neutral-light">Loading dashboard...</p>
+        </div>
+    );
+  }
   
-  if (error && !userTasks.length && !recentMessages.length) return (
-     <div className="flex justify-center items-center h-full text-danger-DEFAULT dark:text-danger-light">
-      <p>{error} Please try refreshing.</p>
-    </div>
-  )
+  if (error && !loadingTasks && !loadingMessages && userTasks.length === 0 && recentMessages.length === 0) {
+     return (
+        <div className="flex justify-center items-center h-full text-danger-DEFAULT dark:text-danger-light">
+        <p>{error} Please try refreshing.</p>
+        </div>
+    );
+  }
+
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-neutral-darkest dark:text-neutral-lightest">Welcome, {user.name}!</h1>
+        <h1 className="text-3xl font-bold text-neutral-darkest dark:text-neutral-lightest">Welcome, {user?.name || 'User'}!</h1>
         <p className="text-lg text-neutral-DEFAULT dark:text-neutral-light mt-1">
-          Here's a quick overview for your department: <span className="font-semibold text-primary-DEFAULT dark:text-primary-light">{user.department}</span>
+          Here's a quick overview for your department: <span className="font-semibold text-primary-DEFAULT dark:text-primary-light">{user?.department || 'N/A'}</span>
         </p>
       </div>
       
@@ -108,7 +115,7 @@ const DashboardPage: React.FC = () => {
               {recentMessages.map(msg => (
                 <li key={msg.id} className="text-sm p-2.5 bg-neutral-light dark:bg-neutral-darkest/70 rounded-md shadow-sm">
                   <Link to="/group-chat" className="hover:underline">
-                    <strong className="text-neutral-darkest dark:text-neutral-lightest">{msg.sender_name === user.name ? "You" : msg.sender_name}:</strong> 
+                    <strong className="text-neutral-darkest dark:text-neutral-lightest">{msg.sender_name === user?.name ? "You" : msg.sender_name}:</strong> 
                     <span className="text-neutral-DEFAULT dark:text-neutral-light ml-1">
                       {msg.type === 'voice' && msg.voice_note_data ? ( 
                         <span className="italic">[Voice Note] {msg.voice_note_data.translatedText.substring(0,25)}...</span> 

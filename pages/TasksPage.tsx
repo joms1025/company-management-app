@@ -31,15 +31,16 @@ const TasksPage: React.FC = () => {
           fetchedTasks = await getTasksForDepartment(user.department, user.role);
         }
         setTasks(fetchedTasks.sort((a,b) => {
-            // Pending tasks first
             if (a.status === TaskStatus.PENDING && b.status !== TaskStatus.PENDING) return -1;
             if (a.status !== TaskStatus.PENDING && b.status === TaskStatus.PENDING) return 1;
-            // Then sort by due date
+            if (a.status === TaskStatus.IN_PROGRESS && b.status === TaskStatus.DONE) return -1;
+            if (a.status === TaskStatus.DONE && b.status === TaskStatus.IN_PROGRESS) return 1;
             return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
         }));
       } catch (e: any) {
         console.error("Error fetching tasks:", e);
         setError(`Failed to load tasks: ${e.message}`);
+        setTasks([]); // Clear tasks on error
       } finally {
         setLoading(false);
       }
@@ -58,6 +59,8 @@ const TasksPage: React.FC = () => {
       if (user.role !== UserRole.ADMIN && user.department) {
         setDepartmentFilter(user.department);
       } else if (user.role === UserRole.ADMIN && departmentFilter !== 'ALL' && !ALL_DEPARTMENTS_LIST.includes(departmentFilter as Department)) {
+        // If admin was filtering a specific dept and then their role/dept changes in a way that makes that filter invalid, reset to 'ALL'
+        // This case is unlikely with current app structure but good for robustness
         setDepartmentFilter('ALL');
       }
     }
@@ -66,26 +69,34 @@ const TasksPage: React.FC = () => {
 
   const handleTaskCreate = async (taskData: Omit<Task, 'id' | 'createdBy' | 'status'>) => {
     if (user) {
+      setLoading(true); // Indicate loading for create operation
       try {
         await addTaskService({
           ...taskData,
-          createdByUserId: user.id, // Service expects createdByUserId
+          createdByUserId: user.id, 
         });
-        fetchTasks(); 
+        await fetchTasks(); // Re-fetch to see the new task
       } catch (e: any) {
         console.error("Error creating task:", e);
         setError(`Failed to create task: ${e.message}`);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    // Optimistic UI update can be done here if desired, then revert on error.
+    // For simplicity, we'll show loading and re-fetch.
+    // setLoading(true); // Can set loading for individual items or whole page
     try {
       await updateTaskStatusService(taskId, newStatus);
-      fetchTasks();
+      await fetchTasks(); // Re-fetch to see updated status
     } catch (e: any) {
       console.error("Error updating task status:", e);
       setError(`Failed to update task: ${e.message}`);
+    } finally {
+      // setLoading(false);
     }
   };
 
@@ -94,6 +105,8 @@ const TasksPage: React.FC = () => {
       <p className="ml-3 text-neutral-dark dark:text-neutral-light">Please login to view tasks.</p>
     </div>
   );
+
+  // Adjusted loading condition to prevent flash of "No Tasks Found"
   if (loading && tasks.length === 0) return (
     <div className="flex justify-center items-center h-full py-10">
       <Spinner size="lg" /><p className="ml-3 text-neutral-dark dark:text-neutral-light">Loading tasks...</p>
@@ -138,25 +151,14 @@ const TasksPage: React.FC = () => {
         </div>
       )}
 
-      {error && <p className="text-sm text-danger-DEFAULT dark:text-danger-light p-2 bg-danger-light/20 rounded-md">{error}</p>}
+      {error && <p className="text-sm text-danger-DEFAULT dark:text-danger-light p-2 bg-danger-light/20 rounded-md my-2">{error}</p>}
 
-      {loading ? (
+      {loading && tasks.length === 0 ? ( // Show loading spinner if fetching and no tasks are yet displayed
          <div className="flex justify-center items-center py-10">
             <Spinner size="lg" />
             <p className="ml-3 text-neutral-dark dark:text-neutral-light">Fetching tasks...</p>
         </div>
-      ) : tasks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {tasks.map(task => (
-            <TaskItem 
-              key={task.id} 
-              task={task} 
-              onStatusChange={handleStatusChange} 
-              canMarkDone={user?.role === UserRole.ADMIN || task.assignedTo === user?.department} 
-            />
-          ))}
-        </div>
-      ) : (
+      ) : !loading && tasks.length === 0 ? ( // Show "No Tasks Found" only after loading is complete and still no tasks
         <div className="text-center py-12 bg-neutral-lightest dark:bg-neutral-dark shadow-md rounded-lg">
           <ClipboardDocumentListIcon className="mx-auto h-16 w-16 text-neutral-DEFAULT/70 dark:text-neutral-light/70" />
           <h3 className="mt-3 text-xl font-semibold text-neutral-darkest dark:text-neutral-lightest">No Tasks Found</h3>
@@ -174,6 +176,17 @@ const TasksPage: React.FC = () => {
                 Create First Task
             </button>
           )}
+        </div>
+      ) : ( // Display tasks if available
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {tasks.map(task => (
+            <TaskItem 
+              key={task.id} 
+              task={task} 
+              onStatusChange={handleStatusChange} 
+              canMarkDone={user?.role === UserRole.ADMIN || task.assignedTo === user?.department} 
+            />
+          ))}
         </div>
       )}
 

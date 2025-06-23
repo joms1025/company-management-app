@@ -1,9 +1,22 @@
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.50.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.6.0"
+  }
+}
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Company Management System</title>
+  <link rel="icon" href="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2220%22%20fill%3D%22%234f46e5%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22central%22%20text-anchor%3D%22middle%22%20font-size%3D%2260%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%3EC%3C%2Ftext%3E%3C%2Fsvg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -115,66 +128,5 @@
               <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #ffebee; color: #c62828; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; line-height: 1.6;">
                 <div style="background-color: #ffffff; padding: 25px 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-width: 700px; border-top: 5px solid #d32f2f;">
                   <svg style="width: 60px; height: 60px; margin: 0 auto 20px auto; color: #e53935;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                  </svg>
-                  <h1 style="font-size: 1.9em; margin-bottom: 15px; color: #b71c1c; font-weight: 600;">CRITICAL CONFIGURATION ERROR!</h1>
-                  <p style="font-size: 1.1em; margin-bottom: 20px;">The <code>index.html</code> file loaded by your browser <strong style="color: #d32f2f;">appears to have placeholder values</strong> for Supabase credentials.</p>
-                  <div style="text-align: left; background-color: #ffcdd2; padding: 12px; border-radius: 6px; margin-bottom:20px; border: 1px solid #ef9a9a;">
-                    <p style="margin-bottom: 8px; font-weight: 500;">Detected in loaded <code>index.html</code> (at ${timestamp}):</p>
-                    <p style="margin-bottom: 5px;">URL: <code style="background-color: #ff9e80; padding: 3px 6px; border-radius: 4px; color: #bf360c; font-weight: bold; font-size: 0.95em;">${window.SUPABASE_URL}</code></p>
-                    <p>Key: <code style="background-color: #ff9e80; padding: 3px 6px; border-radius: 4px; color: #bf360c; font-weight: bold; font-size: 0.95em;">${window.SUPABASE_ANON_KEY}</code></p>
-                    <p style="margin-top: 8px; font-weight: 500;">Check browser console for '[DEBUG] index.html' logs for exact values and placeholder status.</p>
-                  </div>
-                  <p style="font-size: 1.05em; margin-bottom:10px;"><strong>Required Actions:</strong></p>
-                  <ol style="text-align:left; margin-left: 20px; margin-bottom:20px; font-size: 1em;">
-                    <li style="margin-bottom:8px;">Open your project's <code>index.html</code> file and ensure your <strong>actual</strong> Supabase URL and Anon Key are correctly entered.</li>
-                    <li style="margin-bottom:8px;"><strong>Save</strong> the <code>index.html</code> file.</li>
-                    <li style="margin-bottom:8px;">If you use Git, <strong>commit and push</strong> the corrected <code>index.html</code> and ensure your web host has <strong>re-deployed</strong>.</li>
-                    <li style="margin-bottom:8px;"><strong>Crucial:</strong> Clear your browser's cache thoroughly AND perform a hard refresh (usually Ctrl+Shift+R or Cmd+Shift+R). This is vital if you've recently returned to the app (e.g., from an email confirmation link).</li>
-                    <li style="margin-bottom:8px;">Right-click this page, select "View Page Source", and verify the Supabase credentials there.</li>
-                  </ol>
-                  <p style="margin-top:20px; font-size: 0.95em; color: #424242;">The application cannot load until this is corrected in the <code>index.html</code> file being served to your browser.</p>
-                </div>
-              </div>
-            `;
-            // Attempt to stop further script execution to prevent React from trying to initialize.
-            if (typeof window !== 'undefined' && window.stop) {
-              window.stop();
-            }
-            // For older browsers or environments where window.stop might not be effective enough
-            throw new Error("Supabase configuration placeholders detected in index.html. Halting script execution to prevent React app load.");
-          }
-        };
-        
-        // Try to render immediately if document is already interactive/complete, or wait for DOMContentLoaded
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            renderCriticalError();
-        } else {
-            document.addEventListener('DOMContentLoaded', renderCriticalError);
-        }
-      } else {
-        console.log("[DEBUG] index.html: Placeholders NOT detected. Proceeding normally.");
-      }
-    })();
-  </script>
-
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.1.0",
-    "react-dom/client": "https://esm.sh/react-dom@^19.1.0/client",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react/": "https://esm.sh/react@^19.1.0/",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2",
-    "@google/genai": "https://esm.sh/@google/genai@^1.6.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.45.0"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
-<body class="bg-neutral-light dark:bg-neutral-darkest text-neutral-dark dark:text-neutral-light font-sans">
-  <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
-</html>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 <link rel="stylesheet" href="/index.css">
+<script type="module" src="/index.tsx"></script>

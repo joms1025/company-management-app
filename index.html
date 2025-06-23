@@ -17,6 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Company Management System</title>
   <link rel="icon" href="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2220%22%20fill%3D%22%234f46e5%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22central%22%20text-anchor%3D%22middle%22%20font-size%3D%2260%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%3EC%3C%2Ftext%3E%3C%2Fsvg%3E">
+  <!-- <link rel="stylesheet" href="./index.css"> Tailwind CSS is imported in index.tsx and processed by the bundler -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -55,78 +56,92 @@
           animation: {
             'fade-in-slide-up': 'fadeInSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
             'pulse-record-shadow': 'pulseRecordShadow 2s infinite',
-            'subtle-bounce': 'subtleBounce 1.5s infinite ease-in-out',
-            'spin-slow': 'spin 3s linear infinite',
-            'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+            'subtle-bounce': 'subtleBounce 1.5s infinite ease-in-out', // Corrected typo here
+            'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite', // For incoming call modal icon
+            'spin-slow': 'spin 3s linear infinite', // For settings page placeholder icon
           },
           keyframes: {
             fadeInSlideUp: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '0%': { opacity: '0', transform: 'translateY(15px)' },
               '100%': { opacity: '1', transform: 'translateY(0)' },
             },
             pulseRecordShadow: {
-              '0%': { boxShadow: '0 0 0 0px rgba(239, 68, 68, 0.5)' }, // red-500 with opacity
-              '70%': { boxShadow: '0 0 0 12px rgba(239, 68, 68, 0)' },
-              '100%': { boxShadow: '0 0 0 0px rgba(239, 68, 68, 0)' },
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.5)' }, // red-500 with opacity
+              '50%': { boxShadow: '0 0 0 10px rgba(239, 68, 68, 0)' },
             },
             subtleBounce: {
-              '0%, 100%': { transform: 'translateY(-4%)' },
-              '50%': { transform: 'translateY(0)' },
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-3px)' },
             },
-            ping: { // Tailwind's default ping
-              '75%, 100%': {
-                transform: 'scale(1.5)',
-                opacity: '0',
-              },
-            }
+            // Ping and spin are standard Tailwind keyframes, but can be customized if needed.
+            // ping: { ... }, 
+            // spin: { ... },
           }
-        }
-      }
+        },
+      },
+      plugins: [],
     }
   </script>
-<script>
-  // DEFINE YOUR ACTUAL CREDENTIALS HERE:
-  window.SUPABASE_URL = "https://myyhldjjkmehlljkaodh.supabase.co";
-  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eWhsZGpqa21laGxsamthb2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTkyOTcsImV4cCI6MjA2NjE3NTI5N30.dK_BMtXgOj5u7zhM6w9N2Y3EARgHTCaFqoxtXQcFggE";
-  // window.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Optional
-</script>
-  <!-- IMPORTANT: API Key Configuration -->
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-neutral-light dark:bg-neutral-darkest text-neutral-darkest dark:text-neutral-lightest transition-colors duration-300 ease-in-out">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root">
+     <!-- Fallback loading spinner / message in case React takes time to load -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif;">
+      <svg style="width: 50px; height: 50px; margin-bottom: 20px; animation: spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2.99951C16.9706 2.99951 21 7.02895 21 11.9995C21 16.9701 16.9706 20.9995 12 20.9995C7.02944 20.9995 3 16.9701 3 11.9995C3 9.17254 4.30367 6.64993 6.34267 4.99951" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p style="font-size: 16px; color: #4f46e5;">Loading Company Management System...</p>
+    </div>
+  </div>
+
   <script>
-    // This script runs immediately. If placeholders are still present, it alerts the user
-    // AND writes a prominent error directly to the page, halting further script execution.
-    (function() {
-      console.log("[DEBUG] index.html: Checking Supabase credentials in inline script.");
-      console.log("[DEBUG] index.html: window.SUPABASE_URL at check time: '" + window.SUPABASE_URL + "' (Type: " + typeof window.SUPABASE_URL + ")");
-      console.log("[DEBUG] index.html: window.SUPABASE_ANON_KEY at check time: '" + window.SUPABASE_ANON_KEY + "' (Type: " + typeof window.SUPABASE_ANON_KEY + ")");
-      
-      const supabaseUrlIsPlaceholder = window.SUPABASE_URL === "YOUR_SUPABASE_URL_HERE";
-      const supabaseKeyIsPlaceholder = window.SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE";
+    // Placeholder for Supabase credentials - these should be replaced by actual keys or a secure loading mechanism.
+    // Ensure these are replaced before deployment.
+    // It's highly recommended to use environment variables for Supabase credentials in a real application.
+    // For local development or simple demos, placing them here is a quick way, but NOT secure for production.
+    window.SUPABASE_URL = "YOUR_SUPABASE_URL_HERE"; 
+    window.SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+    window.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // For Gemini API
 
-      console.log("[DEBUG] index.html: supabaseUrlIsPlaceholder = " + supabaseUrlIsPlaceholder);
-      console.log("[DEBUG] index.html: supabaseKeyIsPlaceholder = " + supabaseKeyIsPlaceholder);
-
-      if (supabaseUrlIsPlaceholder || supabaseKeyIsPlaceholder) {
-        console.error("[CRITICAL] index.html: Placeholders DETECTED. Displaying error message.");
-        const timestamp = new Date().toLocaleTimeString();
-        const alertMessage = "CRITICAL CONFIGURATION NEEDED (Last checked: " + timestamp + "):\\n\\n" +
-          "Your Supabase URL or Anon Key appears as a placeholder in the index.html file loaded by your browser.\\n" +
-          "This can happen if an old version of the page is cached, especially after returning from an external link (like an email confirmation).\\n\\n" +
-          "REQUIRED ACTIONS:\\n" +
-          "1. Open the Developer Console (F12) to see the '[DEBUG] index.html' logs. They show what values are currently seen by the browser.\\n" +
-          "2. EDIT your local 'index.html' file to ensure your ACTUAL Supabase credentials are set.\\n" +
-          "3. SAVE the file and RE-DEPLOY if necessary.\\n" +
-          "4. Perform a HARD REFRESH (Ctrl+Shift+R or Cmd+Shift+R) AND CLEAR YOUR BROWSER CACHE thoroughly for this site.\\n" +
-          "5. 'View Page Source' in your browser to confirm the loaded HTML contains your actual keys, not placeholders.\\n\\n" +
-          "The application cannot start correctly until the browser loads the index.html with valid credentials.";
-        
-        alert(alertMessage);
-
-        // Function to render the full-page error
-        const renderCriticalError = () => {
-          if (document.body) {
-            document.body.innerHTML = `
-              <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #ffebee; color: #c62828; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; line-height: 1.6;">
-                <div style="background-color: #ffffff; padding: 25px 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-width: 700px; border-top: 5px solid #d32f2f;">
-                  <svg style="width: 60px; height: 60px; margin: 0 auto 20px auto; color: #e53935;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 <link rel="stylesheet" href="/index.css">
-<script type="module" src="/index.tsx"></script>
+    // Critical Error Display Function (if Supabase creds are still placeholders)
+    const renderCriticalError = () => {
+      // Check if the placeholders are still there (simple check, adjust as needed)
+      if (window.SUPABASE_URL === "YOUR_SUPABASE_URL_HERE" || window.SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE") {
+        if (document.body) {
+          document.body.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #fef2f2; color: #7f1d1d; padding: 20px; font-family: sans-serif; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box;">
+              <div style="background-color: #ffffff; padding: 30px 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; border-top: 5px solid #dc2626;">
+                <svg style="width: 48px; height: 48px; color: #dc2626; margin: 0 auto 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <h1 style="font-size: 22px; font-weight: bold; color: #b91c1c; margin-bottom: 15px;">Configuration Error</h1>
+                <p style="font-size: 16px; margin-bottom: 20px;">Supabase URL and/or Anon Key are not configured correctly. Please update the placeholders in <code>index.html</code> with your actual Supabase credentials.</p>
+                <p style="font-size: 13px; color: #991b1b;">If you are deploying this application, ensure these values are set through environment variables or a secure configuration method, not hardcoded in client-side files for production.</p>
+              </div>
+            </div>
+          `;
+           // Attempt to stop further script execution. Might not work in all scenarios/browsers.
+           if (typeof window !== 'undefined' && window.stop) {
+                window.stop();
+            }
+            // Throwing an error is a more reliable way to stop script execution.
+            throw new Error("Supabase configuration placeholders detected in index.html. Halting script execution to prevent React app load.");
+        } else {
+            // Fallback if document.body is not yet available (should be rare for this script placement if moved to end of body)
+            alert("CRITICAL ERROR: Supabase credentials are not configured. Update index.html placeholders. Document.body was not available for full error display.");
+        }
+      } else {
+        console.log("[DEBUG] index.html: Supabase credentials appear to be set (not placeholders). Proceeding with app load.");
+      }
+    };
+    
+    // Call this check early, before React attempts to mount.
+    // If you load Supabase config asynchronously, this check might need to be timed differently.
+    // For this setup (window vars), this is fine when script is at end of body.
+    renderCriticalError();
+  </script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -20,119 +20,106 @@ const CriticalErrorDisplay: React.FC<{ title: string; messages: string[]; detect
       <svg className="mx-auto mb-4 h-12 w-12 text-danger-DEFAULT animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
-      <h1 className="text-2xl sm:text-3xl font-bold text-danger-DEFAULT dark:text-danger-light mb-6">{title}</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-danger-dark dark:text-danger-lightest mb-3 sm:mb-4">{title}</h1>
       {messages.map((msg, index) => (
-        <p key={index} className="text-sm sm:text-md text-neutral-darkest dark:text-neutral-lightest mb-3 sm:mb-4" dangerouslySetInnerHTML={{ __html: msg }} />
+         <p key={index} className="text-sm sm:text-base text-neutral-darkest dark:text-neutral-lightest mb-2" dangerouslySetInnerHTML={{ __html: msg }}></p>
       ))}
-      {(detectedUrl === "YOUR_SUPABASE_URL_HERE" || detectedKey === "YOUR_SUPABASE_ANON_KEY_HERE") && (
-        <div className="mt-4 p-3 bg-danger-DEFAULT/10 dark:bg-danger-dark/20 border border-danger-DEFAULT/30 rounded-md">
-          <p className="text-xs text-danger-dark dark:text-danger-light font-semibold">The application is currently seeing:</p>
-          {detectedUrl === "YOUR_SUPABASE_URL_HERE" && <p className="text-xs text-danger-dark dark:text-danger-light">URL: <code>"{detectedUrl}"</code></p>}
-          {detectedKey === "YOUR_SUPABASE_ANON_KEY_HERE" && <p className="text-xs text-danger-dark dark:text-danger-light">Key: <code>"{detectedKey}"</code></p>}
-          <p className="text-xs text-danger-dark dark:text-danger-light mt-1">These appear to be placeholder values.</p>
-        </div>
-      )}
-      <p className="mt-6 text-xs sm:text-sm text-neutral-DEFAULT dark:text-neutral-light">
-        Please correct the configuration in your <code>index.html</code> file and then <strong>refresh this page</strong>.
+      {detectedUrl && <p className="text-xs text-neutral-DEFAULT dark:text-neutral-light mt-2">Detected URL: <code className="bg-neutral-light dark:bg-neutral-darkest p-1 rounded text-xs">{detectedUrl}</code></p>}
+      {detectedKey && <p className="text-xs text-neutral-DEFAULT dark:text-neutral-light">Detected Key: <code className="bg-neutral-light dark:bg-neutral-darkest p-1 rounded text-xs">{detectedKey ? `${detectedKey.substring(0,5)}... (length: ${detectedKey.length})` : "N/A"}</code></p>}
+       <p className="mt-4 sm:mt-6 text-xs text-neutral-dark dark:text-neutral-light">
+        Please ensure your Supabase credentials (SUPABASE_URL, SUPABASE_ANON_KEY) and Gemini API Key (GEMINI_API_KEY) are correctly configured in your <code>index.html</code> (for local dev) or environment variables (for deployment).
       </p>
     </div>
   </div>
 );
 
-const AppContent: React.FC = () => {
-  const { user, loading } = useAuth();
+
+const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  const { user, loading, criticalDbError } = useAuth();
   const location = useLocation();
 
-  // Check if Supabase client failed to initialize
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen"><Spinner size="lg" /><p className="ml-3">Authenticating...</p></div>;
+  }
+  
+  if (criticalDbError) { // AuthProvider already handles displaying its own critical error. This is a fallback.
+      return <CriticalErrorDisplay title="Application Critical Error" messages={[`A critical database error occurred: ${criticalDbError}`]} />;
+  }
+
+  if (!user) {
+    console.log("App.tsx: ProtectedRoute - No user found. Navigating to /register. Current location:", location.pathname);
+    return <Navigate to="/register" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+const App: React.FC = () => {
+  const { user, loading, criticalDbError } = useAuth(); // AuthContext manages its own full-page critical error.
+
+  // Check Supabase client initialization *after* AuthProvider has had a chance to initialize it.
+  // AuthContext handles the main Supabase client status check. This is an additional safeguard.
+  // The primary `criticalDbError` from `AuthContext` will take precedence.
   if (!supabase) {
-    const actualUrl = (window as any).SUPABASE_URL;
-    const actualKey = (window as any).SUPABASE_ANON_KEY;
-
-    // Log the actual values for debugging
-    console.error("CRITICAL ERROR: Supabase client is null. Investigating window credentials...");
-    console.error(`DEBUG: window.SUPABASE_URL = "${actualUrl}" (Type: ${typeof actualUrl})`);
-    console.error(`DEBUG: window.SUPABASE_ANON_KEY = "${actualKey}" (Type: ${typeof actualKey})`);
-
-
-    const urlIsPlaceholder = actualUrl === "YOUR_SUPABASE_URL_HERE";
-    const keyIsPlaceholder = actualKey === "YOUR_SUPABASE_ANON_KEY_HERE";
-    const urlIsMissing = !actualUrl; 
-    const keyIsMissing = !actualKey; 
-
-    let errorMessages = [
-      "The application cannot connect to its backend services (Supabase). This is a critical configuration issue that requires your manual intervention.",
-      "<strong>Action Required:</strong>",
-      "1. Open the <code>index.html</code> file located in the root of your project.",
-      `2. Find the line <code>window.SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";</code> and replace <code>"YOUR_SUPABASE_URL_HERE"</code> with your <strong>actual Supabase Project URL</strong> (e.g., "https://your-project-id.supabase.co").`,
-      `3. Find the line <code>window.SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";</code> and replace <code>"YOUR_SUPABASE_ANON_KEY_HERE"</code> with your <strong>actual Supabase Public Anon Key</strong>.`,
-      "You can find these credentials in your Supabase project dashboard under Project Settings > API.",
+    console.error("[App.tsx] Supabase client is null. This should ideally be caught by AuthContext or index.html script.");
+    const detectedUrl = (window as any).SUPABASE_URL;
+    const detectedKey = (window as any).SUPABASE_ANON_KEY;
+    const messages = [
+        "The Supabase client could not be initialized. This is a critical configuration issue.",
+        `Please verify that <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> are correctly set in your <code>index.html</code> or environment variables. The values detected in <code>index.html</code> (if any) are shown below.`
     ];
+    return <CriticalErrorDisplay title="Supabase Configuration Error" messages={messages} detectedUrl={detectedUrl} detectedKey={detectedKey}/>;
+  }
 
-    let specificIssueMessage = "There was an error initializing the Supabase client. Please double-check the values in <code>index.html</code> and consult the browser console for more specific error messages from Supabase, such as 'Invalid URL'.";
-
-    if (urlIsPlaceholder || keyIsPlaceholder) {
-      specificIssueMessage = "It appears you are still using <strong>placeholder values</strong> for your Supabase credentials in <code>index.html</code>.";
-    } else if (urlIsMissing || keyIsMissing) {
-      specificIssueMessage = "The Supabase URL or Anon Key is <strong>missing or empty</strong> in the configuration in <code>index.html</code>.";
-    }
-    
-    errorMessages.unshift(specificIssueMessage);
-
-
-    return <CriticalErrorDisplay title="Critical Configuration Error!" messages={errorMessages} detectedUrl={actualUrl} detectedKey={actualKey} />;
+  // AuthProvider already renders GenericCriticalErrorDisplay if criticalDbError is set and loading is false.
+  // So, we don't need to re-render it here if AuthProvider is doing its job.
+  // However, if loading is still true AND there's a criticalDbError, it means AuthProvider hasn't switched to its error display yet.
+  // Or, if loading is false, and criticalDbError is set, AuthProvider *should* be handling it.
+  // This check in App.tsx mainly acts as a safety net or if AuthProvider logic changes.
+  if (criticalDbError && !loading) {
+     // This implies AuthProvider is handling the display. We can return null or a minimal loader.
+     // Or, if we want App.tsx to have its own display for errors *not* caught by AuthProvider (e.g., Supabase client is null above):
+     // return <CriticalErrorDisplay title="Application Critical Error" messages={[`A critical error occurred: ${criticalDbError}`]} />;
+     // For now, assume AuthProvider handles it if error is set and loading is false.
+     return <div className="fixed inset-0 z-[90] flex flex-col items-center justify-center bg-neutral-lightest dark:bg-neutral-darkest"><Spinner size="lg"/><p className="mt-2">Waiting for error display...</p></div>;
   }
 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-neutral-light dark:bg-neutral-darkest">
+      <div className="fixed inset-0 z-[90] flex flex-col items-center justify-center bg-neutral-lightest dark:bg-neutral-darkest">
         <Spinner size="lg" />
-        <p className="ml-4 text-xl text-neutral-dark dark:text-neutral-light">Loading Application...</p>
+        <p className="mt-3 text-lg text-primary-DEFAULT dark:text-primary-light">
+          Loading Application...
+        </p>
       </div>
     );
   }
 
-  // Debugging logs for navigation decisions
-  const userString = user ? `User ID: ${user.id}, Name: ${user.name}, Role: ${user.role}` : 'null';
-  console.log(`App.tsx: Evaluating navigation. User: ${userString}, Loading: ${loading}, Path: ${location.pathname}`);
-
-  if (!user && location.pathname !== '/register') {
-    console.log(`App.tsx: Navigating to /register. Reason: No user and not on /register. Current User: ${userString}, Loading: ${loading}, Path: ${location.pathname}`);
-    return <Navigate to="/register" replace />;
-  }
-
-  if (user && location.pathname === '/register') {
-    console.log(`App.tsx: Navigating to /dashboard. Reason: User exists and is on /register. Current User: ${userString}, Loading: ${loading}, Path: ${location.pathname}`);
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  if (!user && location.pathname === '/register') {
-    console.log(`App.tsx: Rendering RegistrationPage directly. Reason: No user and on /register. Current User: ${userString}, Loading: ${loading}, Path: ${location.pathname}`);
-    return <RegistrationPage />; // Render RegistrationPage without Layout if no user
-  }
-
-  console.log(`App.tsx: Proceeding to render Layout. User: ${userString}, Loading: ${loading}, Path: ${location.pathname}`);
-  return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        {/* <Route path="/voice-notes" element={<VoiceNotesPage />} /> */}
-        <Route path="/group-chat" element={<GroupChatPage />} />
-        <Route path="/tasks" element={<TasksPage />} />
-        <Route path="/video-call" element={<VideoCallPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/register" element={<RegistrationPage />} /> {/* Should ideally not be within Layout if user is not auth'd */}
-      </Routes>
-    </Layout>
-  );
-}
-
-
-const App: React.FC = () => {
   return (
     <HashRouter>
-      <AppContent />
+      <Routes>
+        <Route path="/register" element={user && !criticalDbError ? <Navigate to="/dashboard" replace /> : <RegistrationPage />} />
+        <Route 
+          path="/*" 
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Routes>
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route path="dashboard" element={<DashboardPage />} />
+                  <Route path="group-chat" element={<GroupChatPage />} />
+                  <Route path="tasks" element={<TasksPage />} />
+                  <Route path="video-call" element={<VideoCallPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                  {/* <Route path="voice-notes" element={<VoiceNotesPage />} /> Deprecated */}
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} /> 
+                </Routes>
+              </Layout>
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
     </HashRouter>
   );
 };

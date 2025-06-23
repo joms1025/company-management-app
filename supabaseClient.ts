@@ -77,7 +77,12 @@ function initializeSupabase() {
     // 3. Attempt to create client if valid credentials were determined
     if (determinedSupabaseUrl && determinedSupabaseAnonKey) { 
         try {
-            console.log(`Supabase client: Calling createClient() with URL from ${currentCredSource}: "${determinedSupabaseUrl}" and Key (from ${currentCredSource})`);
+            // Added detailed log before createClient
+            console.log(`Supabase client: PRE-INITIALIZATION CHECK - About to call createClient() with:
+              URL: "${determinedSupabaseUrl}" (Type: ${typeof determinedSupabaseUrl})
+              Key: "[KEY PRESENT BUT MASKED FOR LOG]" (Type: ${typeof determinedSupabaseAnonKey}, Length: ${determinedSupabaseAnonKey?.length || 0})
+              Source: ${currentCredSource}`);
+
             supabase = createClient(determinedSupabaseUrl, determinedSupabaseAnonKey);
             initializationSuccess = !!supabase; 
             if (initializationSuccess) {

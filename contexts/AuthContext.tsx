@@ -43,6 +43,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const { data: authListenerData } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
+        console.log(`Supabase Auth Event: ${event}`, session);
+
         setLoading(true);
         setSession(session);
         if (event === 'SIGNED_IN' && session?.user) {
@@ -104,9 +106,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password?: string) => {
     if (!supabase || !password) return { error: new Error("Supabase client not init or password missing.") };
-    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+    
     if (error) {
       console.error("Login error:", error.message);
       alert(`Login failed: ${error.message}`);

@@ -75,17 +75,17 @@
   <!-- IMPORTANT: API Key Configuration -->
   <script>
     // DEFINE YOUR ACTUAL CREDENTIALS HERE:
-    window.SUPABASE_URL = "https://myyhldjjkmehlljkaodh.supabase.co";     // e.g., "https://your-project-id.supabase.co"
-    window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eWhsZGpqa21laGxsamthb2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTkyOTcsImV4cCI6MjA2NjE3NTI5N30.dK_BMtXgOj5u7zhM6w9N2Y3EARgHTCaFqoxtXQcFggE";
-    window.GEMINI_API_KEY = "AIzaSyA1enqQt8jKW94Lr0mjOEpe9dKeqRkSCxk"; // Optional
+    window.SUPABASE_URL = "https://your-actual-project-id.supabase.co"; // <-- Must be your real URL
+    window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eWhsZGpqa21laGxsamthb2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTkyOTcsImV4cCI6MjA2NjE3NTI5N30.dK_BMtXgOj5u7zhM6w9N2Y3EARgHTCaFqoxtXQcFggE"; // <-- Must be your real key
+    // window.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Optional
   </script>
 
   <script>
     // This script runs immediately. If placeholders are still present, it alerts the user
     // AND writes a prominent error directly to the page, halting further script execution.
     (function() {
-      const supabaseUrlIsPlaceholder = window.SUPABASE_URL === "YOUR_SUPABASE_URL_HERE";
-      const supabaseKeyIsPlaceholder = window.SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE";
+      const supabaseUrlIsPlaceholder = window.SUPABASE_URL === "https://myyhldjjkmehlljkaodh.supabase.co";
+      const supabaseKeyIsPlaceholder = window.SUPABASE_ANON_KEY === "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eWhsZGpqa21laGxsamthb2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTkyOTcsImV4cCI6MjA2NjE3NTI5N30.dK_BMtXgOj5u7zhM6w9N2Y3EARgHTCaFqoxtXQcFggE";
 
       if (supabaseUrlIsPlaceholder || supabaseKeyIsPlaceholder) {
         const timestamp = new Date().toLocaleTimeString();

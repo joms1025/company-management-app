@@ -2,26 +2,23 @@ import { GoogleGenAI, Part, GenerateContentResponse } from "@google/genai";
 import { GEMINI_MODEL_TEXT } from '../constants';
 import { VoiceNoteData } from '../types'; // Using VoiceNoteData as the expected output structure
 
-// Try to get key from process.env (API_KEY) then from window object (GEMINI_API_KEY)
-const GEMINI_API_KEY_ENV = process.env.API_KEY;
-const GEMINI_API_KEY_WINDOW = (window as any).GEMINI_API_KEY;
-const API_KEY_FOR_GEMINI = GEMINI_API_KEY_ENV || GEMINI_API_KEY_WINDOW;
+// Securely get the API key from Vite's environment variables.
+// This works for both .env.local (local dev) and Vercel (production).
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 let ai: GoogleGenAI | null = null;
 
-if (API_KEY_FOR_GEMINI) {
+if (apiKey) {
   try {
-    ai = new GoogleGenAI({ apiKey: API_KEY_FOR_GEMINI });
+    ai = new GoogleGenAI({ apiKey });
+    console.log("Gemini client initialized successfully.");
   } catch (error: any) {
     console.error("Error initializing GoogleGenAI:", error.message);
     ai = null;
   }
-}
-
-if (!ai) {
-  console.warn(
-    "Gemini API client could not be initialized. " +
-    "API_KEY (for process.env) or GEMINI_API_KEY (for window object) might be missing or invalid."
+} else {
+  console.error(
+    "Gemini API Key is not defined. Please set VITE_GEMINI_API_KEY in your .env.local file or in your Vercel project settings."
   );
 }
 
@@ -53,7 +50,7 @@ async function fileToGenerativePart(file: File): Promise<Part> {
  */
 export const processAudioWithGemini = async (audioFile: File): Promise<Partial<VoiceNoteData>> => {
   if (!ai) {
-    throw new Error("Gemini API client is not initialized. API_KEY might be missing or invalid.");
+    throw new Error("Gemini API client is not initialized. Check your VITE_GEMINI_API_KEY.");
   }
 
   try {
@@ -135,7 +132,7 @@ export const processAudioWithGemini = async (audioFile: File): Promise<Partial<V
   } catch (error: any) {
     console.error("Error calling Gemini API:", error);
     if (error.message && (error.message.includes('API key not valid') || error.message.includes('API_KEY_INVALID'))) {
-        throw new Error("Invalid or missing Gemini API Key. Please verify the API_KEY (for process.env) or GEMINI_API_KEY (for window object) and ensure it has permissions for the Gemini API.");
+        throw new Error("Invalid Gemini API Key. Please verify VITE_GEMINI_API_KEY in your environment.");
     }
      if (error.message && error.message.includes('Quota')) {
         throw new Error("Gemini API quota exceeded. Please check your quota limits.");

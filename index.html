@@ -1,12 +1,95 @@
-<script>
-  // This script runs immediately. If placeholders are still present, it alerts the user
-  // AND writes a prominent error directly to the page, halting further script execution.
-  (function() {
-    const supabaseUrlIsPlaceholder = window.SUPABASE_URL === "YOUR_SUPABASE_URL_HERE";
-    const supabaseKeyIsPlaceholder = window.SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE";
-
-    if (supabaseUrlIsPlaceholder || supabaseKeyIsPlaceholder) {
-      // ... (code to show the alert and the big red error page)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // or 'media'
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              light: '#818cf8', // indigo-400
+              DEFAULT: '#4f46e5', // indigo-600
+              dark: '#3730a3',  // indigo-800
+            },
+            secondary: {
+              light: '#5eead4', // teal-300
+              DEFAULT: '#14b8a6', // teal-500
+              dark: '#0f766e',  // teal-700
+            },
+            accent: {
+              light: '#fcd34d', // amber-300
+              DEFAULT: '#f59e0b', // amber-500
+              dark: '#b45309', // amber-700
+            },
+            neutral: {
+              lightest: '#f8fafc', // slate-50
+              light: '#f1f5f9',   // slate-100
+              DEFAULT: '#64748b', // slate-500
+              dark: '#1e293b',    // slate-800
+              darkest: '#0f172a',  // slate-900
+            },
+            danger: {
+              light: '#fca5a5', // red-400
+              DEFAULT: '#ef4444', // red-500
+              dark: '#b91c1c' // red-700
+            }
+          },
+          animation: {
+            'fade-in-slide-up': 'fadeInSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+            'pulse-record-shadow': 'pulseRecordShadow 2s infinite',
+            'subtle-bounce': 'subtleBounce 1.5s infinite ease-in-out',
+            'spin-slow': 'spin 3s linear infinite',
+            'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+          },
+          keyframes: {
+            fadeInSlideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            pulseRecordShadow: {
+              '0%': { boxShadow: '0 0 0 0px rgba(239, 68, 68, 0.5)' }, // red-500 with opacity
+              '70%': { boxShadow: '0 0 0 12px rgba(239, 68, 68, 0)' },
+              '100%': { boxShadow: '0 0 0 0px rgba(239, 68, 68, 0)' },
+            },
+            subtleBounce: {
+              '0%, 100%': { transform: 'translateY(-4%)' }, 
+              '50%': { transform: 'translateY(0)' },
+            },
+            ping: { // Tailwind's default ping
+              '75%, 100%': {
+                transform: 'scale(1.5)',
+                opacity: '0',
+              },
+            }
+          }
+        }
+      }
     }
-  })();
+  </script>
+
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/client": "https://esm.sh/react-dom@^19.1.0/client",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2",
+    "@google/genai": "https://esm.sh/@google/genai@^1.6.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.45.0"
+  }
+}
 </script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-neutral-light dark:bg-neutral-darkest text-neutral-dark dark:text-neutral-light font-sans">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  
+</body>
+</html>

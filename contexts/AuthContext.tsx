@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import supabase from '../supabaseClient'; // Import your Supabase client
 import { User, UserRole, Department } from '../types';
@@ -24,7 +23,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     setLoading(true);
     if (!supabase) {
-        console.error("AuthContext EFFECT: Supabase client is null. Halting auth setup. This usually indicates a problem with Supabase credentials in index.html or supabaseClient.ts initialization.");
+        console.error("Supabase client not initialized in AuthContext. Halting auth setup.");
         setLoading(false);
         return;
     }
@@ -44,6 +43,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const { data: authListenerData } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
+        console.log(`Supabase Auth Event: ${event}`, session);
+
         setLoading(true);
         setSession(session);
         if (event === 'SIGNED_IN' && session?.user) {
@@ -63,10 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const loadUserProfile = async (supabaseUser: SupabaseUser) => {
-    if (!supabase) {
-      console.error("AuthContext loadUserProfile: Supabase client is null. Cannot fetch profile.");
-      return;
-    }
+    if (!supabase) return;
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -107,20 +105,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   const login = async (email: string, password?: string) => {
-    if (!supabase) {
-      const errMsg = "AuthContext LOGIN: Supabase client is null. Cannot attempt login. Check Supabase configuration in index.html.";
-      console.error(errMsg);
-      alert("Critical error: Unable to connect to authentication service. Please contact support if this issue persists after checking configuration.");
-      return { error: new Error(errMsg) };
-    }
-    if (!password) {
-        const errMsg = "AuthContext LOGIN: Password missing.";
-        console.error(errMsg);
-        return { error: new Error(errMsg)};
-    }
-    setLoading(true);
+    if (!supabase || !password) return { error: new Error("Supabase client not init or password missing.") };
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+    
     if (error) {
       console.error("Login error:", error.message);
       alert(`Login failed: ${error.message}`);
@@ -129,12 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const register = async (userData: Omit<User, 'id' | 'password'> & {password: string}) => {
-    if (!supabase) {
-      const errMsg = "AuthContext REGISTER: Supabase client is null. Cannot attempt registration. Check Supabase configuration in index.html.";
-      console.error(errMsg);
-      alert("Critical error: Unable to connect to authentication service for registration. Please contact support if this issue persists after checking configuration.");
-      return { error: new Error(errMsg) };
-    }
+    if (!supabase) return { error: new Error("Supabase client not initialized.") };
     setLoading(true);
     const { email, password, name, role, department } = userData;
     
@@ -169,13 +151,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
   
   const logout = async () => {
-    if (!supabase) {
-      console.warn("AuthContext LOGOUT: Supabase client is null. Cannot perform Supabase signout, but clearing local state.");
-      setUser(null);
-      setSession(null);
-      setLoading(false);
-      return;
-    }
+    if (!supabase) return;
     setLoading(true);
     await supabase.auth.signOut();
     setUser(null); // Explicitly set user to null
@@ -184,18 +160,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const setUserRole = async (newRole: UserRole) => {
-    if (!user) {
-        console.warn("AuthContext setUserRole: No user logged in.");
-        return;
-    }
-    if (!supabase) {
-      console.error("AuthContext setUserRole: Supabase client is null. Cannot update role in DB.");
-      alert("Error: Cannot connect to server to update role.");
-      return;
-    }
-    if (user.role === newRole) return;
-
+    if (!user || !supabase || user.role === newRole) return;
     setLoading(true);
+    // This is a conceptual role switch. In Supabase, you'd update the 'profiles' table.
+    // Ensure you have RLS policies that allow users (or specific users) to update their role.
     const { data, error } = await supabase
         .from('profiles')
         .update({ role: newRole })

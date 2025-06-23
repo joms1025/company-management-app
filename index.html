@@ -72,29 +72,7 @@
     }
   </script>
 
-  <!-- IMPORTANT: API Key Configuration -->
-  <!-- Define your API keys and Supabase credentials here if not using a build process with .env files -->
-  <!-- Uncomment and replace with your actual keys/values -->
-  <script>
-    // window.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
-    window.SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";     // e.g., "https://your-project-id.supabase.co"
-    window.SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
-  </script>
-
-  <script>
-    // This script runs immediately after the above config.
-    // If placeholders are still present, it alerts the user.
-    if (window.SUPABASE_URL === "YOUR_SUPABASE_URL_HERE" || window.SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE") {
-      alert(
-        "CRITICAL CONFIGURATION NEEDED:\\n\\n" +
-        "Your Supabase URL or Anon Key is still set to a placeholder value.\\n\\n" +
-        "Please EDIT the 'index.html' file and REPLACE 'YOUR_SUPABASE_URL_HERE' and 'YOUR_SUPABASE_ANON_KEY_HERE' with your ACTUAL Supabase project credentials.\\n\\n" +
-        "The application cannot start without these. Check the browser console for more details."
-      );
-    }
-  </script>
-
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.1.0",
@@ -111,6 +89,6 @@
 </head>
 <body class="bg-neutral-light dark:bg-neutral-darkest text-neutral-dark dark:text-neutral-light font-sans">
   <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

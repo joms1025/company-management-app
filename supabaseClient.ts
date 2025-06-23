@@ -1,43 +1,25 @@
-
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { User } from "./types"; // Assuming User type might be needed or for consistency
 
-// Try to get Supabase creds from process.env, then from window object
-const supabaseUrlEnv = process.env.SUPABASE_URL;
-const supabaseUrlWindow = (window as any).SUPABASE_URL;
-const supabaseUrl = supabaseUrlEnv || supabaseUrlWindow;
+// Securely get Supabase credentials from Vite's environment variables.
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabaseAnonKeyEnv = process.env.SUPABASE_ANON_KEY;
-const supabaseAnonKeyWindow = (window as any).SUPABASE_ANON_KEY;
-const supabaseAnonKey = supabaseAnonKeyEnv || supabaseAnonKeyWindow;
+// Log for debugging to see what values are being loaded.
+console.log("Supabase URL Loaded:", supabaseUrl ? 'Yes' : 'No');
+console.log("Supabase Key Loaded:", supabaseAnonKey ? 'Yes' : 'No');
 
-
-let supabase: SupabaseClient | null = null;
-
-const PLACEHOLDER_URL = "YOUR_SUPABASE_URL_HERE";
-const PLACEHOLDER_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
-
-if (!supabaseUrl || supabaseUrl === PLACEHOLDER_URL) {
+if (!supabaseUrl || !supabaseAnonKey) {
   console.error(
-    `Supabase URL is not defined or is still a placeholder ('${PLACEHOLDER_URL}'). ` +
-    "Please set a valid SUPABASE_URL in your environment (process.env) or, if developing in a static HTML setup, " +
-    "ensure window.SUPABASE_URL is correctly set with your actual Supabase project URL in index.html."
+    'Supabase credentials are not defined. ' +
+    'Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.'
   );
-} else if (!supabaseAnonKey || supabaseAnonKey === PLACEHOLDER_KEY) {
-  console.error(
-    `Supabase Anon Key is not defined or is still a placeholder ('${PLACEHOLDER_KEY}'). ` +
-    "Please set a valid SUPABASE_ANON_KEY in your environment (process.env) or, if developing in a static HTML setup, " +
-    "ensure window.SUPABASE_ANON_KEY is correctly set with your actual Supabase project anon key in index.html."
-  );
-} else {
-  try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-    console.log("Supabase client initialized.");
-  } catch (error: any) { // Catching 'any' type for error as it could be various things
-    console.error("Error initializing Supabase client:", error.message || error);
-    supabase = null; // Ensure supabase is null if initialization fails
-  }
+  // You could throw an error here to stop the app from loading further,
+  // or display a user-friendly message in the UI.
+  throw new Error('Supabase configuration error. Check environment variables.');
 }
+
+const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
 export default supabase;
 

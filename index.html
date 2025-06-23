@@ -75,21 +75,36 @@
   // DEFINE YOUR ACTUAL CREDENTIALS HERE:
   window.SUPABASE_URL = "https://myyhldjjkmehlljkaodh.supabase.co";
   window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eWhsZGpqa21laGxsamthb2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1OTkyOTcsImV4cCI6MjA2NjE3NTI5N30.dK_BMtXgOj5u7zhM6w9N2Y3EARgHTCaFqoxtXQcFggE";
- window.GEMINI_API_KEY = "AIzaSyA1enqQt8jKW94Lr0mjOEpe9dKeqRkSCxk"; // Optional
+  // window.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Optional
 </script>
-<script>
+  <!-- IMPORTANT: API Key Configuration -->
+  <script>
     // This script runs immediately. If placeholders are still present, it alerts the user
     // AND writes a prominent error directly to the page, halting further script execution.
     (function() {
+      console.log("[DEBUG] index.html: Checking Supabase credentials in inline script.");
+      console.log("[DEBUG] index.html: window.SUPABASE_URL at check time: '" + window.SUPABASE_URL + "' (Type: " + typeof window.SUPABASE_URL + ")");
+      console.log("[DEBUG] index.html: window.SUPABASE_ANON_KEY at check time: '" + window.SUPABASE_ANON_KEY + "' (Type: " + typeof window.SUPABASE_ANON_KEY + ")");
+      
       const supabaseUrlIsPlaceholder = window.SUPABASE_URL === "YOUR_SUPABASE_URL_HERE";
       const supabaseKeyIsPlaceholder = window.SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE";
 
+      console.log("[DEBUG] index.html: supabaseUrlIsPlaceholder = " + supabaseUrlIsPlaceholder);
+      console.log("[DEBUG] index.html: supabaseKeyIsPlaceholder = " + supabaseKeyIsPlaceholder);
+
       if (supabaseUrlIsPlaceholder || supabaseKeyIsPlaceholder) {
+        console.error("[CRITICAL] index.html: Placeholders DETECTED. Displaying error message.");
         const timestamp = new Date().toLocaleTimeString();
         const alertMessage = "CRITICAL CONFIGURATION NEEDED (Last checked: " + timestamp + "):\\n\\n" +
-          "Your Supabase URL or Anon Key is still set to a placeholder value in the loaded index.html.\\n\\n" +
-          "Please EDIT the 'index.html' file, REPLACE 'YOUR_SUPABASE_URL_HERE' and 'YOUR_SUPABASE_ANON_KEY_HERE' with your ACTUAL Supabase credentials, SAVE the file, and perform a HARD REFRESH (Ctrl+Shift+R or Cmd+Shift+R) and CLEAR YOUR BROWSER CACHE.\\n\\n" +
-          "The application cannot start without these. Check 'View Page Source' in your browser to see the HTML it loaded.";
+          "Your Supabase URL or Anon Key appears as a placeholder in the index.html file loaded by your browser.\\n" +
+          "This can happen if an old version of the page is cached, especially after returning from an external link (like an email confirmation).\\n\\n" +
+          "REQUIRED ACTIONS:\\n" +
+          "1. Open the Developer Console (F12) to see the '[DEBUG] index.html' logs. They show what values are currently seen by the browser.\\n" +
+          "2. EDIT your local 'index.html' file to ensure your ACTUAL Supabase credentials are set.\\n" +
+          "3. SAVE the file and RE-DEPLOY if necessary.\\n" +
+          "4. Perform a HARD REFRESH (Ctrl+Shift+R or Cmd+Shift+R) AND CLEAR YOUR BROWSER CACHE thoroughly for this site.\\n" +
+          "5. 'View Page Source' in your browser to confirm the loaded HTML contains your actual keys, not placeholders.\\n\\n" +
+          "The application cannot start correctly until the browser loads the index.html with valid credentials.";
         
         alert(alertMessage);
 
@@ -103,22 +118,22 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                   </svg>
                   <h1 style="font-size: 1.9em; margin-bottom: 15px; color: #b71c1c; font-weight: 600;">CRITICAL CONFIGURATION ERROR!</h1>
-                  <p style="font-size: 1.1em; margin-bottom: 20px;">The <code>index.html</code> file loaded by your browser <strong style="color: #d32f2f;">still contains placeholder values</strong> for Supabase credentials.</p>
+                  <p style="font-size: 1.1em; margin-bottom: 20px;">The <code>index.html</code> file loaded by your browser <strong style="color: #d32f2f;">appears to have placeholder values</strong> for Supabase credentials.</p>
                   <div style="text-align: left; background-color: #ffcdd2; padding: 12px; border-radius: 6px; margin-bottom:20px; border: 1px solid #ef9a9a;">
                     <p style="margin-bottom: 8px; font-weight: 500;">Detected in loaded <code>index.html</code> (at ${timestamp}):</p>
                     <p style="margin-bottom: 5px;">URL: <code style="background-color: #ff9e80; padding: 3px 6px; border-radius: 4px; color: #bf360c; font-weight: bold; font-size: 0.95em;">${window.SUPABASE_URL}</code></p>
                     <p>Key: <code style="background-color: #ff9e80; padding: 3px 6px; border-radius: 4px; color: #bf360c; font-weight: bold; font-size: 0.95em;">${window.SUPABASE_ANON_KEY}</code></p>
+                    <p style="margin-top: 8px; font-weight: 500;">Check browser console for '[DEBUG] index.html' logs for exact values and placeholder status.</p>
                   </div>
                   <p style="font-size: 1.05em; margin-bottom:10px;"><strong>Required Actions:</strong></p>
                   <ol style="text-align:left; margin-left: 20px; margin-bottom:20px; font-size: 1em;">
-                    <li style="margin-bottom:8px;">Open the correct <code>index.html</code> file in your project editor.</li>
-                    <li style="margin-bottom:8px;">Replace <code>YOUR_SUPABASE_URL_HERE</code> with your <strong>actual Supabase Project URL</strong>.</li>
-                    <li style="margin-bottom:8px;">Replace <code>YOUR_SUPABASE_ANON_KEY_HERE</code> with your <strong>actual Supabase Public Anon Key</strong>.</li>
+                    <li style="margin-bottom:8px;">Open your project's <code>index.html</code> file and ensure your <strong>actual</strong> Supabase URL and Anon Key are correctly entered.</li>
                     <li style="margin-bottom:8px;"><strong>Save</strong> the <code>index.html</code> file.</li>
-                    <li style="margin-bottom:8px;"><strong>Crucial:</strong> Clear your browser's cache thoroughly AND perform a hard refresh (usually Ctrl+Shift+R or Cmd+Shift+R).</li>
+                    <li style="margin-bottom:8px;">If you use Git, <strong>commit and push</strong> the corrected <code>index.html</code> and ensure your web host has <strong>re-deployed</strong>.</li>
+                    <li style="margin-bottom:8px;"><strong>Crucial:</strong> Clear your browser's cache thoroughly AND perform a hard refresh (usually Ctrl+Shift+R or Cmd+Shift+R). This is vital if you've recently returned to the app (e.g., from an email confirmation link).</li>
+                    <li style="margin-bottom:8px;">Right-click this page, select "View Page Source", and verify the Supabase credentials there.</li>
                   </ol>
-                  <p style="margin-top:20px; font-size: 0.95em; color: #424242;">The React application cannot load until this is corrected in the <code>index.html</code> file being served to your browser.</p>
-                  <p style="margin-top:15px; font-size: 0.9em; color: #616161;">Tip: Right-click on this page and select "View Page Source" to see the exact HTML content your browser loaded. Verify the Supabase URL and Key there.</p>
+                  <p style="margin-top:20px; font-size: 0.95em; color: #424242;">The application cannot load until this is corrected in the <code>index.html</code> file being served to your browser.</p>
                 </div>
               </div>
             `;
@@ -137,6 +152,8 @@
         } else {
             document.addEventListener('DOMContentLoaded', renderCriticalError);
         }
+      } else {
+        console.log("[DEBUG] index.html: Placeholders NOT detected. Proceeding normally.");
       }
     })();
   </script>

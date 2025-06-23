@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.log("AuthContext: loadUserProfile - Returning hydrated user (from profile):", hydratedUser);
         return hydratedUser;
       } else if (supabaseUser.email) { 
-        console.warn(`AuthContext: loadUserProfile - Profile not found for user ${supabaseUser.id} (PGRST116). Using fallback with email: ${supabaseUser.email}. This may indicate a missing profile row or RLS issue.`);
+        console.warn(`AuthContext: loadUserProfile - Profile not found for user ${supabaseUser.id} (PGRST116 or other). Using fallback with email: ${supabaseUser.email}. This may indicate a missing profile row or RLS issue.`);
         const fallbackUser: User = {
             id: supabaseUser.id,
             name: supabaseUser.email.split('@')[0] || 'New User',
@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         try {
             setSession(currentSession);
-            let loadedUser: User | null = null;
+            let loadedUser: User | null = null; // Initialize loadedUser for each event cycle
 
             switch (event) {
               case 'INITIAL_SESSION':
@@ -107,7 +107,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 if (currentSession?.user) {
                   loadedUser = await loadUserProfile(currentSession.user);
                 }
-                setUser(loadedUser);
+                // No explicit setUser here, loadedUser will be set below
                 break;
               case 'SIGNED_IN':
                 console.log("AuthContext: onAuthStateChange - SIGNED_IN event.");
@@ -116,11 +116,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 } else {
                   console.warn("AuthContext: onAuthStateChange - SIGNED_IN event, but no user in session. This is unexpected.");
                 }
-                setUser(loadedUser);
+                // No explicit setUser here, loadedUser will be set below
                 break;
               case 'SIGNED_OUT':
                 console.log("AuthContext: onAuthStateChange - SIGNED_OUT event. Setting local user to null.");
-                setUser(null);
+                loadedUser = null; // Explicitly set loadedUser to null
                 break;
               case 'USER_UPDATED':
                 console.log("AuthContext: onAuthStateChange - USER_UPDATED event.");
@@ -129,34 +129,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 } else {
                    console.warn("AuthContext: onAuthStateChange - USER_UPDATED event, but no user in session.");
                 }
-                setUser(loadedUser);
+                // No explicit setUser here, loadedUser will be set below
                 break;
               case 'PASSWORD_RECOVERY':
                 console.log("AuthContext: onAuthStateChange - PASSWORD_RECOVERY event. User state not directly changed.");
-                // No change to user state needed here usually, loading will be set to false in finally.
+                // Keep loadedUser as null or its current state if not modifying user
+                loadedUser = user; // Preserve current user state if no change is intended by this event
                 break;
               case 'TOKEN_REFRESHED':
                 console.log("AuthContext: onAuthStateChange - TOKEN_REFRESHED event.");
                 if (currentSession?.user) {
-                  // Only reload profile if the user context seems stale or wasn't set.
                   if (!user || user.id !== currentSession.user.id || user.email !== currentSession.user.email) {
                     console.log("AuthContext: onAuthStateChange - TOKEN_REFRESHED: Local user out of sync or null. Reloading profile.");
                     loadedUser = await loadUserProfile(currentSession.user);
-                    setUser(loadedUser);
                   } else {
                     console.log("AuthContext: onAuthStateChange - TOKEN_REFRESHED: Local user seems in sync. No profile reload.");
+                    loadedUser = user; // Preserve current user
                   }
                 } else if (user !== null) { 
                   console.warn("AuthContext: onAuthStateChange - TOKEN_REFRESHED: Session lost user, but local user existed. Clearing local user.");
-                  setUser(null);
+                  loadedUser = null;
+                } else {
+                  loadedUser = user; // Preserve current user state if no change
                 }
                 break;
               default:
                 console.log(`AuthContext: onAuthStateChange - Unhandled event type: ${event}`);
+                loadedUser = user; // Preserve current user on unhandled events
             }
-            console.log(`AuthContext: onAuthStateChange - User state after processing ${event}:`, user, "Session state:", session);
+            
+            // Centralized setUser call after switch statement
+            console.log(`AuthContext: onAuthStateChange - Preparing to set user state with loadedUser for event ${event}:`, loadedUser);
+            setUser(loadedUser);
+            
+            // Note: Logging 'user' and 'session' here will show their values from the *previous* render cycle due to closure.
+            // The 'loadedUser' log above is the most accurate for what setUser was called with in this cycle.
+            // App.tsx's logs will show the 'user' state in the *next* render cycle.
+            console.log(`AuthContext: onAuthStateChange - State after processing ${event} (user/session logged here are from previous render):`, user, session);
+
         } catch (e: any) {
-            console.error(`AuthContext: onAuthStateChange - Exception during event handling for ${event}:`, e.message);
+            console.error(`AuthContext: onAuthStateChange - Exception during event handling for ${event}:`, e.message, e.stack);
             setUser(null); // Clear user on error during event processing
         } finally {
             console.log(`AuthContext: onAuthStateChange - Event handling COMPLETED for ${event}. Setting loading=false.`);
@@ -167,9 +179,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     return () => {
       console.log("AuthContext: useEffect cleanup - Unsubscribing from auth state changes.");
-      authListenerData?.subscription?.unsubscribe();
+      if (authListenerData?.subscription) {
+        authListenerData.subscription.unsubscribe();
+      } else {
+        console.warn("AuthContext: useEffect cleanup - No subscription object found to unsubscribe.");
+      }
     };
-  }, []); // Empty dependency array: runs only on mount and unmount.
+  }, [user]); // Added 'user' to dependency array for TOKEN_REFRESHED logic that compares new session to existing user state.
 
   const login = async (email: string, password?: string) => {
     console.log(`AuthContext: login - Attempting login for email: ${email}`);
@@ -188,7 +204,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true); // Ensure loading is true during login attempt
     const { error, data } = await supabase.auth.signInWithPassword({ email, password });
     
-    // onAuthStateChange (SIGNED_IN or error) will handle setting user and final loading state.
     if (error) {
       console.error("AuthContext: login - Login error from Supabase:", error.message);
       let displayMessage = error.message;
@@ -198,7 +213,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         displayMessage = "Your email address has not been confirmed. Please check your inbox for a confirmation link.";
       }
       alert(`Login failed: ${displayMessage}`);
-      setLoading(false); // Set loading false if login API call itself errors out before onAuthStateChange might fire.
+      setLoading(false); 
     } else {
         console.log("AuthContext: login - signInWithPassword successful. Waiting for onAuthStateChange (SIGNED_IN) to set user and final loading state.", data);
     }
@@ -214,7 +229,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { error: new Error(errMsg) };
     }
     console.log("AuthContext: register - Setting loading=true (register start).");
-    setLoading(true); // Ensure loading is true
+    setLoading(true);
     const { email, password, name, role, department } = userData;
     
     const { data: signUpData, error } = await supabase.auth.signUp({
@@ -229,16 +244,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     });
 
-    // onAuthStateChange (SIGNED_IN or error, or initial if confirmation needed) will handle final loading state.
     if (error) {
       console.error("AuthContext: register - Registration error from Supabase:", error.message);
       alert(`Registration failed: ${error.message}`);
-      setLoading(false); // Set loading false if signUp API call itself errors out
+      setLoading(false); 
     } else if (signUpData.user) {
         console.log("AuthContext: register - Supabase signUp call successful.", signUpData);
          if (signUpData.session) {
             console.log("AuthContext: register - Registration resulted in an immediate session. onAuthStateChange (SIGNED_IN) will handle user state and final loading.");
-        } else { // Email confirmation likely required
+        } else { 
             alert("Registration successful! Please check your email to confirm your account.");
             console.log("AuthContext: register - Email confirmation required. Setting loading=false.");
             setLoading(false); 
@@ -264,12 +278,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true); 
     const { error } = await supabase.auth.signOut();
 
-    // onAuthStateChange with SIGNED_OUT should fire and set user/session to null and loading to false.
-    // If it doesn't fire immediately, or if there's an error, ensure loading is false.
     if (error) {
         console.error("AuthContext: logout - Error during Supabase sign out:", error.message);
     }
-    // Explicitly clear and set loading, as onAuthStateChange might be delayed or have issues
     setUser(null); 
     setSession(null);
     console.log("AuthContext: logout - Logout process completed. Setting loading=false (logout completed).");
